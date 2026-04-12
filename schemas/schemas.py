@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
+    username: str = Field(..., min_length=5, max_length=50, description="Nickname")
+    email: EmailStr = Field(..., description="Email")
+    password: str = Field(..., min_length=5, max_length=100, description="Password")
 
 class UserOut(BaseModel):
     id: int
@@ -25,3 +25,10 @@ class VerificationRequest(BaseModel):
 
 class LogoutRequest(BaseModel):
     refresh_token: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordConfirm(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=5)

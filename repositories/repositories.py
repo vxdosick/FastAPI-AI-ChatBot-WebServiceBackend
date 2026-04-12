@@ -38,3 +38,7 @@ class UserRepository:
             select(BlacklistedToken).where(BlacklistedToken.token == token)
         )
         return result.scalar_one_or_none() is not None
+    
+    async def update_user_password(self, user: User, hashed_password: str):
+        user.hashed_password = hashed_password
+        await self.session.commit()
