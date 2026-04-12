@@ -1,0 +1,35 @@
+# Main
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+venv/
+ENV/
+
+# Data Base (SQLite)
+database/storage/*.db
+database/storage/*.sqlite3
+
+# Migrations
+*.pyc
+
+# Logs
+*.log
+logs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS
+.DS_Store
+Thumbs.db
+
+# Celery/Redis
+*.pid
