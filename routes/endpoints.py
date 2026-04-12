@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import get_db
@@ -19,8 +19,12 @@ async def get_auth_service(db: AsyncSession = Depends(get_db)):
     return AuthService(repo, mail_service)
 
 @router.post("/register", response_model=UserOut)
-async def register(user_in: UserCreate, service: AuthService = Depends(get_auth_service)):
-    return await service.register_new_user(user_in)
+async def register(
+    user_in: UserCreate, 
+    background_tasks: BackgroundTasks,
+    service: AuthService = Depends(get_auth_service)
+):
+    return await service.register_new_user(user_in, background_tasks)
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), service: AuthService = Depends(get_auth_service)):
@@ -52,8 +56,12 @@ async def get_me(token: str = Depends(oauth2_scheme), service: AuthService = Dep
     return await service.get_current_user(token)
 
 @router.post("/forgot-password")
-async def forgot_password(req: ForgotPasswordRequest, service: AuthService = Depends(get_auth_service)):
-    await service.request_password_reset(req.email)
+async def forgot_password(
+    req: ForgotPasswordRequest, 
+    background_tasks: BackgroundTasks,
+    service: AuthService = Depends(get_auth_service)
+):
+    await service.request_password_reset(req.email, background_tasks)
     return {"message": "Password reset email sent"}
 
 @router.post("/reset-password-confirm")

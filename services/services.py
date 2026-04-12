@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, BackgroundTasks
 from repositories.repositories import UserRepository
 from schemas.schemas import UserCreate
 from config.config import SECRET_KEY, ALGORITHM
@@ -27,7 +27,7 @@ class AuthService:
         to_encode.update({"exp": expire, "type": token_type})
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-    async def register_new_user(self, user_in: UserCreate):
+    async def register_new_user(self, user_in: UserCreate, background_tasks: BackgroundTasks):
         if await self.repo.get_user_by_email(user_in.email):
             raise HTTPException(status_code=400, detail="Email already registered")
         
@@ -45,7 +45,7 @@ class AuthService:
         # Send verification email
         verify_token = self.create_token({"sub": user.email}, timedelta(hours=24), "verify")
         
-        await self.mail_service.send_verification_email(user.email, verify_token)
+        background_tasks.add_task(self.mail_service.send_verification_email, user.email, verify_token)
         
         return user
 
@@ -92,13 +92,15 @@ class AuthService:
             raise HTTPException(status_code=404, detail="User not found")
         return user
     
-    async def request_password_reset(self, email: str):
+    async def request_password_reset(self, email: str, background_tasks: BackgroundTasks):
         user = await self.repo.get_user_by_email(email)
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-            
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
         reset_token = self.create_token({"sub": user.email}, timedelta(hours=1), "reset")
-        await self.mail_service.send_reset_password_email(user.email, reset_token)
+
+        # Ставим в очередь отправку письма для сброса
+        background_tasks.add_task(self.mail_service.send_reset_password_email, user.email, reset_token)
 
     async def reset_password_confirm(self, token: str, new_password: str):
         try:
