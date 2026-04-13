@@ -1,5 +1,5 @@
 # Imports
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from sqlalchemy import String, DateTime
 
@@ -13,6 +13,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column()
     is_active: Mapped[bool] = mapped_column(default=False)
+    bots = relationship("Bot", back_populates="owner")
 
 class BlacklistedToken(Base):
     __tablename__ = "token_blacklist"
