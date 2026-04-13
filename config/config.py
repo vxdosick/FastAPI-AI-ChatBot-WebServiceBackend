@@ -1,10 +1,13 @@
+# Imports
 from dotenv import load_dotenv
 from pathlib import Path
 from fastapi_mail import ConnectionConfig
 import os
 
+# Load environment variables
 load_dotenv()
 
+# Directories
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_DIR  = BASE_DIR / "database" / "storage"
 
@@ -21,7 +24,7 @@ MAIL_CONFIG = ConnectionConfig(
     MAIL_FROM=os.getenv("MAIL_FROM"),
     MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
     MAIL_SERVER=os.getenv("MAIL_SERVER"),
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
+    MAIL_STARTTLS=(os.getenv("MAIL_STARTTLS", "True") == "True"),
+    MAIL_SSL_TLS=(os.getenv("MAIL_SSL_TLS", "False") == "True"),
     USE_CREDENTIALS=True
 )

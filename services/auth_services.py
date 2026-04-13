@@ -2,13 +2,65 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, BackgroundTasks
-from repositories.repositories import UserRepository
-from schemas.schemas import UserCreate
-from config.config import SECRET_KEY, ALGORITHM
-
-from services.mail_service import MailService
+from repositories.auth_repositories import UserRepository
+from schemas.auth_schemas import UserCreate
+from config.config import SECRET_KEY, ALGORITHM, MAIL_CONFIG
+from fastapi_mail import FastMail, MessageSchema, MessageType
 
 PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class MailService:
+    def __init__(self):
+        self.fastmail = FastMail(MAIL_CONFIG)
+
+    async def send_verification_email(self, email: str, token: str):
+        # Frontend public URL
+        verification_url = f"http://localhost:8000/auth/verify-email?token={token}"
+        
+        html = f"""
+        <html>
+            <body>
+                <p>Thank you for registering!</p>
+                <p>Please click the link below to verify your email address:</p>
+                <a href="{verification_url}">{verification_url}</a>
+                <p>Url will expire in 24 hours</p>
+            </body>
+        </html>
+        """
+        
+        message = MessageSchema(
+            subject="Email Verification",
+            recipients=[email],
+            body=html,
+            subtype=MessageType.html
+        )
+        
+        await self.fastmail.send_message(message)
+
+
+    async def send_reset_password_email(self, email: str, token: str):
+        # Frontend public URL
+        reset_url = f"http://localhost:8000/auth/reset-password-confirm?token={token}"
+        
+        html = f"""
+        <html>
+            <body>
+                <p>Looks like you have requested to reset your password</p>
+                <p>Please click the link below to reset your password:</p>
+                <a href="{reset_url}">{reset_url}</a>
+                <p>If you did not request a password reset, please ignore this email</p>
+            </body>
+        </html>
+        """
+        
+        message = MessageSchema(
+            subject="Password Reset",
+            recipients=[email],
+            body=html,
+            subtype=MessageType.html
+        )
+
+        await self.fastmail.send_message(message)
 
 class AuthService:
     def __init__(self, repo: UserRepository, mail_service: MailService):
@@ -95,11 +147,10 @@ class AuthService:
     async def request_password_reset(self, email: str, background_tasks: BackgroundTasks):
         user = await self.repo.get_user_by_email(email)
         if not user:
-            raise HTTPException(status_code=404, detail="Пользователь не найден")
+            raise HTTPException(status_code=404, detail="User not found")
 
         reset_token = self.create_token({"sub": user.email}, timedelta(hours=1), "reset")
 
-        # Ставим в очередь отправку письма для сброса
         background_tasks.add_task(self.mail_service.send_reset_password_email, user.email, reset_token)
 
     async def reset_password_confirm(self, token: str, new_password: str):

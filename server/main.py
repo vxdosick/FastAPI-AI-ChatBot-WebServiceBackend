@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database.database import engine, Base
-from routes.endpoints import router as auth_router
+from routes.auth_endpoints import router as auth_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -10,7 +10,7 @@ async def lifespan(app: FastAPI):
     yield
     await engine.dispose()
 
-app = FastAPI(title="FastAPI-AI-ChatBot-WebServiceBackend", lifespan=lifespan)
+app = FastAPI(title="FastAPI-AI-ChatBot-WebServiceBackend", version="1.0.0", lifespan=lifespan)
 
 app.include_router(auth_router)
 

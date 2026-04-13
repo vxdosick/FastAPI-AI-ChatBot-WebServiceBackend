@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models.models import User, BlacklistedToken
+from models.auth_models import User, BlacklistedToken
 
 class UserRepository:
     def __init__(self, session: AsyncSession):

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import get_db
-from repositories.repositories import UserRepository
-from services.services import AuthService
-from schemas.schemas import UserCreate, UserOut, Token, VerificationRequest, LogoutRequest, ForgotPasswordRequest, ResetPasswordConfirm
+from repositories.auth_repositories import UserRepository
+from services.auth_services import AuthService
+from schemas.auth_schemas import UserCreate, UserOut, Token, VerificationRequest, LogoutRequest, ForgotPasswordRequest, ResetPasswordConfirm
 from config.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from datetime import timedelta
 
