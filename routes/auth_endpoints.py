@@ -8,7 +8,7 @@ from schemas.auth_schemas import UserCreate, UserOut, Token, VerificationRequest
 from config.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from datetime import timedelta
 
-from services.mail_service import MailService
+from services.auth_services import MailService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")

@@ -26,3 +26,6 @@ class AppService:
             "bot_name": bot.name,
             "settings": bot.settings
         }
+    
+    async def get_all_user_bots(self, user_id: int):
+        return await self.repo.get_user_bots(user_id)

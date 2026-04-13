@@ -12,3 +12,12 @@ class BotOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class BotShortInfo(BaseModel):
+    id: int
+    name: str
+    api_key: str
+    allowed_domain: str
+
+    class Config:
+        from_attributes = True

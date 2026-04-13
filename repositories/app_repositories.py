@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.app_models import Bot
 from schemas.app_schemas import BotCreate
 
-class BotRepository:
+class AppRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -28,3 +28,9 @@ class BotRepository:
             select(Bot).where(Bot.api_key == api_key)
         )
         return result.scalar_one_or_none()
+    
+    async def get_user_bots(self, user_id: int) -> list[Bot]:
+        result = await self.session.execute(
+            select(Bot).where(Bot.owner_id == user_id)
+        )
+        return result.scalars().all()
