@@ -26,7 +26,9 @@ async def validate_widget(
     service: AppService = Depends(get_app_service)
 ):
     origin = request.headers.get("origin") or request.headers.get("referer") or ""
-    return await service.validate_bot_access(api_key, origin)
+    
+    bot_config = await service.validate_bot_access(api_key, origin)
+    return bot_config
 
 @router.get("/bots", response_model=list[BotShortInfo])
 async def list_bots(
