@@ -33,3 +33,4 @@ Thumbs.db
 
 # Celery/Redis
 *.pid
+.aider*

@@ -1,20 +1,29 @@
 # Atomic AI Bot
+
 ## FastAPI-AI-ChatBot-WebServiceBackend
 ## This is the part of the AI-ChatBot project.
 
-### Email provider in the project
+### Email provider
 ```bash
 atomic.ai.bot.service@gmail.com
 ```
 
-### Useful commands
-1. Run server
+### Commands
+1. Run backend project
 - development mode
 ```bash
 uvicorn server.main:app --reload
 ```
-
 - production mode
 ```bash
-uvicorn server.main:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn server.main:app --host 0.0.0.0 --port 8000
+```
+2. Aider commands
+- choose AI model
+```bash
+aider --model openrouter/anthropic/claude-sonnet-4.6
+```
+- run command
+```bash
+aider --no-show-model-warnings --no-pretty --yes --no-stream
 ```
