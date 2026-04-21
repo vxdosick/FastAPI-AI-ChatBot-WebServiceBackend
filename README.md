@@ -9,7 +9,11 @@ atomic.ai.bot.service@gmail.com
 ```
 
 ### Commands
-1. Run backend project
+1. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+2. Run backend project
 - development mode
 ```bash
 uvicorn server.main:app --reload
@@ -18,7 +22,7 @@ uvicorn server.main:app --reload
 ```bash
 uvicorn server.main:app --host 0.0.0.0 --port 8000
 ```
-2. Aider commands
+3. Aider commands
 - choose AI model
 ```bash
 aider --model openrouter/anthropic/claude-sonnet-4.6
