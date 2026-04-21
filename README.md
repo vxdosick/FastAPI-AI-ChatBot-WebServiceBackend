@@ -8,6 +8,14 @@
 atomic.ai.bot.service@gmail.com
 ```
 
+### Technologies
+- Python 3.12.13
+- FastAPI + uvicorn
+- Pydantic
+- SQLAlchemy
+- SQLite (Development)
+- PostgreSQL (Production)
+
 ### Commands
 1. Install dependencies
 ```bash
@@ -16,7 +24,7 @@ pip install -r requirements.txt
 2. Run backend project
 - development mode
 ```bash
-uvicorn server.main:app --reload
+uvicorn server.main:app --reload --port 8000
 ```
 - production mode
 ```bash

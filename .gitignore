@@ -34,3 +34,6 @@ Thumbs.db
 # Celery/Redis
 *.pid
 .aider*
+
+# Test informations
+TEST_README.md

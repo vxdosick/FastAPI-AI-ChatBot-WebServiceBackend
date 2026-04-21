@@ -1,13 +1,18 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from fastapi import HTTPException, status, BackgroundTasks
+from fastapi import HTTPException, BackgroundTasks, Depends
 from repositories.auth_repositories import UserRepository
 from schemas.auth_schemas import UserCreate
 from config.config import SECRET_KEY, ALGORITHM, MAIL_CONFIG
 from fastapi_mail import FastMail, MessageSchema, MessageType
+from fastapi.security import OAuth2PasswordBearer
+from database.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from repositories.auth_repositories import UserRepository
 
-PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
+PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__ident="2b")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 class MailService:
     def __init__(self):
@@ -128,9 +133,16 @@ class AuthService:
         if not await self.repo.is_token_blacklisted(token):
             await self.repo.add_token_to_blacklist(token)
 
-    async def get_current_user(self, token: str):
-        if await self.repo.is_token_blacklisted(token):
+    @staticmethod
+    async def get_current_user(
+        token: str = Depends(oauth2_scheme), 
+        db: AsyncSession = Depends(get_db)
+    ):
+        repo = UserRepository(db) 
+        
+        if await repo.is_token_blacklisted(token):
             raise HTTPException(status_code=401, detail="Token blacklisted")
+            
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             username: str = payload.get("sub")
@@ -139,9 +151,10 @@ class AuthService:
         except JWTError:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
             
-        user = await self.repo.get_user_by_username(username)
+        user = await repo.get_user_by_username(username)
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
+            
         return user
     
     async def request_password_reset(self, email: str, background_tasks: BackgroundTasks):

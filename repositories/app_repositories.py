@@ -1,4 +1,3 @@
-import secrets
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.app_models import Bot
@@ -8,16 +7,15 @@ class AppRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_user_bot(self, user_id: int, bot_data: BotCreate) -> Bot:
-
-        generated_key = f"at_{secrets.token_urlsafe(32)}"
-        
+    async def create_user_bot(self, user_id: int, bot_data: BotCreate, api_key: str):
         db_bot = Bot(
             name=bot_data.name,
             allowed_domain=bot_data.allowed_domain,
-            api_key=generated_key,
-            owner_id=user_id
+            api_key=api_key,
+            owner_id=user_id,
+            settings=bot_data.settings.model_dump() if bot_data.settings else {}
         )
+        
         self.session.add(db_bot)
         await self.session.commit()
         await self.session.refresh(db_bot)
